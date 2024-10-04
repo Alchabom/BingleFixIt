@@ -106,29 +106,50 @@
 </html>
 
 <?php
-    if(isset($_POST["Submit"])) 
-    {
-        print "<h2>Your comment has been submitted!</h2> ";
+    if (isset($_POST["Submit"])) {
+        print "<h2>Your comment has been submitted!</h2>";
 
         $Name = $_POST["Name"];
-        $Comment = $_POST["Comment"]; 
+        $Comment = $_POST["Comment"];
 
-        $Old = fopen("comments.txt", "r+t");
-        $Old_Comments = fread($Old, 1024);
 
-        $Write = fopen("comments.txt", "w+");
+        // Reading the old comments
+        $Old = fopen("comments.txt", "r");
+        if (!$Old) {
+            die("Error: Unable to open the file for reading.");
+        }
+
+        if (filesize("comments.txt") > 0) {
+          $Old_Comments = fread($Old, filesize("comments.txt"));
+        } else {
+          $Old_Comments = "";  // If the file is empty, set $Old_Comments to an empty string
+        }
+
+        $Old_Comments = fread($Old, filesize(filename: "comments.txt"));
+        fclose($Old);
+
+        // Writing the new comment and appending the old ones
+        $Write = fopen("comments.txt", "w");
+        if (!$Write) {
+            die("Error: Unable to open the file for writing.");
+        }
 
         $String = 
-            "<div class = 'comment'><span>".$Name."</span><br />
+            "<div class='comment'><span>".$Name."</span><br />
             <span>".date("Y/m/d")." | ".date("h:i A")."</span><br />
-            <span>".$Comment."</span></div\n".$Old_Comments;
+            <span>".$Comment."</span></div>\n".$Old_Comments;
 
-            fwrite($Write, $String);
-            fclose($Write);
-            fclose($Old);
+        fwrite($Write, $String);
+        fclose($Write);
+
+        $Read = fopen("comments.txt", "r");
+    if (!$Read) {
+        die("Error: Unable to open the file for reading.");
+    }
+    echo "<h1>Comments:</h1><hr>" . fread($Read, filesize("comments.txt"));
+    fclose($Read);
     }
 
-    $Read = fopen("comments.txt", "r+t");
-    echo "<h1>Comments:<h1><hr>".fread($Read, 1024);
-    fclose($Read);
+ 
+    
 ?>

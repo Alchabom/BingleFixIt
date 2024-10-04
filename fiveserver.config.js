@@ -1,3 +1,3 @@
 module.exports = {
-    php: "/usr/bin/php"
+    php: "/Applications/XAMPP/bin/php"
 }
