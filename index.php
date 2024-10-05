@@ -52,32 +52,6 @@
 </div> 
 
 
-
-      <header>
-        <p class = "paragraph1"> Customer Reviews</p>
-      </header>
-
-      <section id = "reviews">
-        <div class = "review"> 
-          <h3> Jane Doe</h3>
-          <p>★★★★☆</p>
-        <p>Great repairs...</p>
-        </div>
-
-        <div class = "review"> 
-          <h3> John Doe</h3>
-          <p>★★★★☆</p>
-        <p>Great repairs...</p>
-        </div>
-
-        <div class = "review"> 
-          <h3> Fart Buckle</h3>
-          <p>★★☆☆☆</p>
-        <p>I hate bingle...</p>
-        </div>
-
-      </section>
-
     </body>
 
 
@@ -93,11 +67,6 @@
           font-size: 13px;
         }
       </style>
-      <head>
-        <title>
-          Comments
-        </title>
-      </head>
       <body>
         <form action = "" method = "POST">
           <label>Name:
@@ -142,11 +111,15 @@
 
       if (file_exists("comments.txt")) {
         $Read = fopen("comments.txt", "r");
-        if ($Read) {
-            echo "<h1>Comments:</h1><hr>" . fread($Read, filesize("comments.txt"));
-            fclose($Read);
-        }
-      }
+    if (!$Read) {
+        die("Error: Unable to open the file for reading.");
+    }
+    echo "<h1>Comments:</h1><hr>" . fread($Read, filesize("comments.txt"));
+    fclose($Read);
+    }
+
+ 
+    
 ?>
 </body>
 </html>
