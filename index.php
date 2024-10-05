@@ -52,32 +52,6 @@
 </div> 
 
 
-
-      <header>
-        <p class = "paragraph1"> Customer Reviews</p>
-      </header>
-
-      <section id = "reviews">
-        <div class = "review"> 
-          <h3> Jane Doe</h3>
-          <p>★★★★☆</p>
-        <p>Great repairs...</p>
-        </div>
-
-        <div class = "review"> 
-          <h3> John Doe</h3>
-          <p>★★★★☆</p>
-        <p>Great repairs...</p>
-        </div>
-
-        <div class = "review"> 
-          <h3> Fart Buckle</h3>
-          <p>★★☆☆☆</p>
-        <p>I hate bingle...</p>
-        </div>
-
-      </section>
-
     </body>
 
 
@@ -93,6 +67,11 @@
           font-size: 13px;
         }
       </style>
+      <head>
+        <title>
+          Comments
+        </title>
+      </head>
       <body>
         <form action = "" method = "POST">
           <label>Name:
@@ -101,9 +80,6 @@
             <textarea name = "Comment" required ></textarea></label><br />
             <input type = "submit" name="Submit" value="Submit" />
           </form>
-      </body>
-
-</html>
 
 <?php
     if (isset($_POST["Submit"])) {
@@ -114,22 +90,15 @@
 
 
         // Reading the old comments
-        $Old = fopen("comments.txt", "r");
-        if (!$Old) {
-            die("Error: Unable to open the file for reading.");
-        }
+        $Old = fopen("comments.txt", "r+t");
 
-        if (filesize("comments.txt") > 0) {
-          $Old_Comments = fread($Old, filesize("comments.txt"));
-        } else {
-          $Old_Comments = "";  // If the file is empty, set $Old_Comments to an empty string
-        }
 
-        $Old_Comments = fread($Old, filesize(filename: "comments.txt"));
-        fclose($Old);
+
+        $Old_Comments = fread($Old,1024);
+     
 
         // Writing the new comment and appending the old ones
-        $Write = fopen("comments.txt", "w");
+        $Write = fopen("comments.txt", "w+");
         if (!$Write) {
             die("Error: Unable to open the file for writing.");
         }
@@ -141,15 +110,17 @@
 
         fwrite($Write, $String);
         fclose($Write);
+        fclose($Old);
+      }
 
+
+      if (file_exists("comments.txt")) {
         $Read = fopen("comments.txt", "r");
-    if (!$Read) {
-        die("Error: Unable to open the file for reading.");
-    }
-    echo "<h1>Comments:</h1><hr>" . fread($Read, filesize("comments.txt"));
-    fclose($Read);
-    }
-
- 
-    
+        if ($Read) {
+            echo "<h1>Comments:</h1><hr>" . fread($Read, filesize("comments.txt"));
+            fclose($Read);
+        }
+      }
 ?>
+</body>
+</html>
