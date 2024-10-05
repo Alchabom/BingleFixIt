@@ -67,6 +67,16 @@
           font-size: 13px;
         }
       </style>
+      <head> 
+        <title>
+        LeaveReview
+      </title>
+      </head>
+      <body>
+        <h1>
+          Leave a Review
+        </h1>
+      </body>
       <head>
         <title>
           Comments
@@ -117,7 +127,7 @@
       if (file_exists("comments.txt")) {
         $Read = fopen("comments.txt", "r");
         if ($Read) {
-            echo "<h1>Comments:</h1><hr>" . fread($Read, filesize("comments.txt"));
+            echo "<h1>Customer Reviews:</h1><hr>" . fread($Read, filesize("comments.txt"));
             fclose($Read);
         }
       }
