@@ -86,51 +86,78 @@
         <form action = "" method = "POST">
           <label>Name:
             <input type ="text" name = "Name" required /></label><br />
-          <label>Comment:<br />
+          
+              <label>Email:
+              <input type="email" name="Email" required />
+              </label><br />
+          
+              <label>Rating (out of 5):
+              <input type="number" name="Rating" min="1" max="5" required />
+              </label><br />
+          
+            <label>Comment:<br />
             <textarea name = "Comment" required ></textarea></label><br />
             <input type = "submit" name="Submit" value="Submit" />
           </form>
 
 <?php
-    if (isset($_POST["Submit"])) {
-        print "<h2>Your comment has been submitted!</h2>";
+    $host = "localhost";
+    $db_name = "mobile_repair";
+    $username = "alchabomar@gmail.com";
+    $password = "Hu9aDg-rW!LZL.W";
 
-        $Name = $_POST["Name"];
-        $Comment = $_POST["Comment"];
-
-
-        // Reading the old comments
-        $Old = fopen("comments.txt", "r+t");
+    $conn = new mysqli($host, $username, $password, $db_name);
 
 
+    if ($conn->connect_error)
+    {
+      die("Connection failed: ". $conn->connect_error);
+    }
 
-        $Old_Comments = fread($Old,1024);
-     
+    if (isset($_POST["Submit"]))
+    {
+      $customer_name = $_POST["Name"];
+      $email = $_POST["Email"];
+      $rating = $_POST["Rating"];
+      $review_content = $_POST["Comment"];
 
-        // Writing the new comment and appending the old ones
-        $Write = fopen("comments.txt", "w+");
-        if (!$Write) {
-            die("Error: Unable to open the file for writing.");
-        }
+      $stmt = $conn->prepare("INSERT INTO comments (customer_name, email, rating, review_content, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())");
 
-        $String = 
-            "<div class='comment'><span>".$Name."</span><br />
-            <span>".date("Y/m/d")." | ".date("h:i A")."</span><br />
-            <span>".$Comment."</span></div>\n".$Old_Comments;
-
-        fwrite($Write, $String);
-        fclose($Write);
-        fclose($Old);
+      if ($stmt->execute())
+      {
+        echo "<h2>Your review has been submitted!<h2>";
+      } 
+      else
+      {
+        echo "Error: ". $stmt->error;
       }
+      $stmt->close();
+    }
 
+    $sql = "SELECT customer_name, email, rating, review_content, created_at FROM comments ORDER BY created_at DESC";
+    $result = $conn->query($sql);
 
-      if (file_exists("comments.txt")) {
-        $Read = fopen("comments.txt", "r");
-        if ($Read) {
-            echo "<h1>Customer Reviews:</h1><hr>" . fread($Read, filesize("comments.txt"));
-            fclose($Read);
-        }
+    if ($result->num_rows > 0)
+    {
+      echo"<h1>Customer Reviews:</h1><hr>";
+
+      while( $row = $result->fetch_assoc())
+      {
+      echo "<div class='review'>
+      <span><strong>Name:</strong> " . htmlspecialchars($row["customer_name"]) . "</span><br />
+      <span><strong>Email:</strong> " . htmlspecialchars($row["email"]) . "</span><br />
+      <span><strong>Rating:</strong> " . htmlspecialchars($row["rating"]) . "/5</span><br />
+      <span><strong>Date:</strong> " . date("Y/m/d h:i A", strtotime($row["created_at"])) . "</span><br />
+      <p><strong>Review:</strong> " . htmlspecialchars($row["review_content"]) . "</p>
+    </div><hr>";
       }
+    }
+    else
+    {
+      echo "No reviews yet!";
+    }
+
+    $conn->close();
 ?>
 </body>
 </html>
