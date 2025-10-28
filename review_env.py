@@ -9,7 +9,6 @@ class ReviewEnvironment(gym.Env):
     def __init__(self, config: Dict[str, Any]):
         super().__init__()
         
-     
         self.db_config = {
             'host': 'localhost',
             'port': 3307,
@@ -18,7 +17,10 @@ class ReviewEnvironment(gym.Env):
             'database': 'mobile_repair'
         }
         
-      
+        # Track episode and step for the agent
+        self.current_episode = 0
+        self.current_step = 0
+        
         self.tokenizer = None
         if config.get('use_tokenizer', False):
             model_for_tokenizer = config.get('model_name', 'gpt2')
@@ -26,7 +28,6 @@ class ReviewEnvironment(gym.Env):
                 from transformers import AutoTokenizer
                 self.tokenizer = AutoTokenizer.from_pretrained(model_for_tokenizer)
             except Exception as e:
-              
                 print(f"Warning: could not load tokenizer for '{model_for_tokenizer}': {e}")
         self.max_length = config.get('max_length', 512)
         
@@ -54,7 +55,7 @@ class ReviewEnvironment(gym.Env):
             conn = mysql.connector.connect(**self.db_config)
             cursor = conn.cursor()
             
-            
+            # Only fetch real user reviews from comments table
             cursor.execute("""
                 SELECT review_content, rating 
                 FROM comments 
@@ -69,12 +70,26 @@ class ReviewEnvironment(gym.Env):
                 reviews.append(review)
                 ratings.append(rating)
             
+            # Also fetch agent reviews for reference
+            cursor.execute("""
+                SELECT review_content
+                FROM agent_comments
+                WHERE episode_id = %s
+                ORDER BY step_number DESC
+                LIMIT 5
+            """, (self.current_episode,))
+            
+            agent_reviews = []
+            for (review,) in cursor.fetchall():
+                agent_reviews.append(f"[Agent Review] {review}")
+            
             cursor.close()
             conn.close()
             
-           
+            # Combine user and agent reviews, but only use user ratings for average
             avg_rating = float(np.mean(ratings)) if ratings else 3.0
-            reviews_text = " | ".join(reviews) if reviews else ""
+            all_reviews = agent_reviews + reviews
+            reviews_text = " | ".join(all_reviews) if all_reviews else ""
             
             return reviews_text, float(avg_rating)
             
@@ -83,10 +98,12 @@ class ReviewEnvironment(gym.Env):
             return "", 0.0
     
     def reset(self, seed: Optional[int] = None) -> Tuple[Dict[str, Any], Dict[str, Any]]:
-       
         super().reset(seed=seed)
         
-       
+        # Increment episode counter and reset step counter
+        self.current_episode += 1
+        self.current_step = 0
+        
         reviews, avg_rating = self._get_reviews()
         
         observation = {
@@ -110,6 +127,7 @@ class ReviewEnvironment(gym.Env):
             truncated: Whether the episode was truncated
             info: Additional information
         """
+        self.current_step += 1
         review_text = str(action.get('text', '')).strip()
         raw_rating = action.get('rating', 1)
 
@@ -122,23 +140,28 @@ class ReviewEnvironment(gym.Env):
         if 0 <= rating_int <= 4:
             rating = rating_int + 1
         else:
-           
             rating = max(1, min(5, rating_int))
 
-      
         _, avg_before = self._get_reviews()
 
-      
         try:
             conn = mysql.connector.connect(**self.db_config)
             cursor = conn.cursor()
 
+            # Store action metadata
+            action_metadata = {
+                'text_length': len(review_text.split()),
+                'rating_normalized': bool(0 <= rating_int <= 4),
+                'rating_original': raw_rating
+            }
+
             cursor.execute("""
-                INSERT INTO comments 
-                (customer_name, email, rating, review_content, created_at, updated_at)
+                INSERT INTO agent_comments 
+                (rating, review_content, episode_id, step_number, reward, action_metadata)
                 VALUES 
-                ('RL_Agent', 'agent@rl.ai', %s, %s, NOW(), NOW())
-            """, (rating, review_text))
+                (%s, %s, %s, %s, 0, %s)
+            """, (rating, review_text, self.current_episode, self.current_step, 
+                 mysql.connector.conversion.MySQLConverter().escape(str(action_metadata))))
 
             conn.commit()
             cursor.close()
@@ -146,11 +169,9 @@ class ReviewEnvironment(gym.Env):
 
         except Exception as e:
             print(f"Database error: {e}")
-           
             obs, _ = self.reset()
             return obs, -1.0, True, False, {'error': str(e)}
 
-        
         reviews_after, avg_after = self._get_reviews()
 
         observation = {
@@ -158,7 +179,6 @@ class ReviewEnvironment(gym.Env):
             'avg_rating': np.array([avg_after], dtype=np.float32)
         }
 
-      
         reward = self._calculate_reward(review_text, rating, avg_before, avg_after)
 
         return observation, reward, False, False, {}
@@ -179,7 +199,6 @@ class ReviewEnvironment(gym.Env):
         if review_length > 30:
             reward += 0.5
 
-      
         rating_diff = abs(rating - avg_before)
         if rating_diff < 1.0:
             reward += 1.0
@@ -189,10 +208,24 @@ class ReviewEnvironment(gym.Env):
         delta = float(avg_after - avg_before)
         reward += delta
 
+        # Update the reward in the database
+        try:
+            conn = mysql.connector.connect(**self.db_config)
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE agent_comments
+                SET reward = %s
+                WHERE episode_id = %s AND step_number = %s
+            """, (float(reward), self.current_episode, self.current_step))
+            conn.commit()
+            cursor.close()
+            conn.close()
+        except Exception as e:
+            print(f"Warning: Could not update reward in database: {e}")
+
         return float(reward)
 
     def render(self):
-       
         reviews, avg_rating = self._get_reviews()
         print("\nCurrent Environment State:")
         print(f"Average Rating: {avg_rating:.2f}")
