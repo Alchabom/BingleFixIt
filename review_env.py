@@ -5,14 +5,11 @@ import mysql.connector
 
 
 class ReviewEnvironment(gym.Env):
-    """
-    A custom Gym environment for training an RL agent to generate and evaluate reviews
-    """
     
     def __init__(self, config: Dict[str, Any]):
         super().__init__()
         
-        # Database configuration
+     
         self.db_config = {
             'host': 'localhost',
             'port': 3307,
@@ -21,8 +18,7 @@ class ReviewEnvironment(gym.Env):
             'database': 'mobile_repair'
         }
         
-        # Initialize tokenizer only when explicitly requested (local/transformers use).
-        # When using cloud models (PaLM/Gemini) there's no local tokenizer to load.
+      
         self.tokenizer = None
         if config.get('use_tokenizer', False):
             model_for_tokenizer = config.get('model_name', 'gpt2')
@@ -30,8 +26,7 @@ class ReviewEnvironment(gym.Env):
                 from transformers import AutoTokenizer
                 self.tokenizer = AutoTokenizer.from_pretrained(model_for_tokenizer)
             except Exception as e:
-                # If tokenizer fails to load (e.g., model name is a PaLM/Gemini model or
-                # requires auth on Hugging Face), continue without tokenizer.
+              
                 print(f"Warning: could not load tokenizer for '{model_for_tokenizer}': {e}")
         self.max_length = config.get('max_length', 512)
         
@@ -59,7 +54,7 @@ class ReviewEnvironment(gym.Env):
             conn = mysql.connector.connect(**self.db_config)
             cursor = conn.cursor()
             
-            # Get reviews
+            
             cursor.execute("""
                 SELECT review_content, rating 
                 FROM comments 
@@ -77,7 +72,7 @@ class ReviewEnvironment(gym.Env):
             cursor.close()
             conn.close()
             
-            # Use a neutral default average (3.0) if there are no reviews yet
+           
             avg_rating = float(np.mean(ratings)) if ratings else 3.0
             reviews_text = " | ".join(reviews) if reviews else ""
             
@@ -91,7 +86,7 @@ class ReviewEnvironment(gym.Env):
        
         super().reset(seed=seed)
         
-        # Get current state of reviews
+       
         reviews, avg_rating = self._get_reviews()
         
         observation = {
@@ -127,13 +122,13 @@ class ReviewEnvironment(gym.Env):
         if 0 <= rating_int <= 4:
             rating = rating_int + 1
         else:
-            # clamp values to 1..5
+           
             rating = max(1, min(5, rating_int))
 
-        # Get average before insertion so reward can measure agent impact
+      
         _, avg_before = self._get_reviews()
 
-        # Insert the new review into database
+      
         try:
             conn = mysql.connector.connect(**self.db_config)
             cursor = conn.cursor()
@@ -151,11 +146,11 @@ class ReviewEnvironment(gym.Env):
 
         except Exception as e:
             print(f"Database error: {e}")
-            # Return a fresh reset observation on DB errors
+           
             obs, _ = self.reset()
             return obs, -1.0, True, False, {'error': str(e)}
 
-        # Get new state (after insertion)
+        
         reviews_after, avg_after = self._get_reviews()
 
         observation = {
@@ -163,7 +158,7 @@ class ReviewEnvironment(gym.Env):
             'avg_rating': np.array([avg_after], dtype=np.float32)
         }
 
-        # Calculate reward using before/after average and review content
+      
         reward = self._calculate_reward(review_text, rating, avg_before, avg_after)
 
         return observation, reward, False, False, {}
@@ -171,8 +166,6 @@ class ReviewEnvironment(gym.Env):
     def _calculate_reward(self, review_text: str, rating: int, avg_before: float, avg_after: float) -> float:
         """
         Calculate reward for the action
-        
-        This is a simple reward function that you can modify based on your needs:
         - Length of review (longer reviews might be better)
         - Sentiment alignment (rating should match sentiment)
         - Impact on average rating
@@ -180,17 +173,13 @@ class ReviewEnvironment(gym.Env):
         """
         reward = 0.0
 
-        # Reward based on review length (encourage meaningful reviews)
         review_length = len(review_text.split())
         if review_length > 10:
             reward += 0.5
         if review_length > 30:
             reward += 0.5
 
-        # Reward based on rating justification
-        # You can add more sophisticated text analysis here
-
-        # Reward based on consistency with average rating (before submission)
+      
         rating_diff = abs(rating - avg_before)
         if rating_diff < 1.0:
             reward += 1.0
@@ -203,7 +192,7 @@ class ReviewEnvironment(gym.Env):
         return float(reward)
 
     def render(self):
-        """Render the environment"""
+       
         reviews, avg_rating = self._get_reviews()
         print("\nCurrent Environment State:")
         print(f"Average Rating: {avg_rating:.2f}")
@@ -214,5 +203,4 @@ class ReviewEnvironment(gym.Env):
         print("-" * 50)
 
     def close(self):
-        """Clean up resources"""
         pass
