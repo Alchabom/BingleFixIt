@@ -1,0 +1,1 @@
+ALTER TABLE agent_comments CHANGE action_metadata action_metadata TEXT;
