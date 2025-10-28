@@ -2,7 +2,7 @@ import gymnasium as gym
 import numpy as np
 from typing import Optional, Dict, Any, Tuple
 import mysql.connector
-from transformers import AutoTokenizer
+
 
 class ReviewEnvironment(gym.Env):
     """
@@ -21,8 +21,18 @@ class ReviewEnvironment(gym.Env):
             'database': 'mobile_repair'
         }
         
-        # Initialize tokenizer for text processing
-        self.tokenizer = AutoTokenizer.from_pretrained(config.get('model_name', 'gpt2'))
+        # Initialize tokenizer only when explicitly requested (local/transformers use).
+        # When using cloud models (PaLM/Gemini) there's no local tokenizer to load.
+        self.tokenizer = None
+        if config.get('use_tokenizer', False):
+            model_for_tokenizer = config.get('model_name', 'gpt2')
+            try:
+                from transformers import AutoTokenizer
+                self.tokenizer = AutoTokenizer.from_pretrained(model_for_tokenizer)
+            except Exception as e:
+                # If tokenizer fails to load (e.g., model name is a PaLM/Gemini model or
+                # requires auth on Hugging Face), continue without tokenizer.
+                print(f"Warning: could not load tokenizer for '{model_for_tokenizer}': {e}")
         self.max_length = config.get('max_length', 512)
         
         # Define action and observation spaces
