@@ -1,5 +1,7 @@
-gymnasium>=0.29.1
-mysql-connector-python>=8.1.0
+torch>=2.0.0
+transformers>=4.30.0
+gymnasium>=0.28.0
 numpy>=1.24.0
-google-generativeai>=0.3.0
+mysql-connector-python>=8.0.0
 python-dotenv>=1.0.0
+accelerate>=0.20.0
