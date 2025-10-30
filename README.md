@@ -15,7 +15,7 @@ An **OpenAI Gym-compatible environment** where RL agents learn to:
 
 **Key Feature:** Trained on **286 seeded customer reviews** from actual database, replicating realistic customer behavior patterns.
 
-## 🏆 Results at a Glance
+## Results
 
 ```
 ┌────────────────────────────────────────────────────┐
@@ -30,7 +30,7 @@ An **OpenAI Gym-compatible environment** where RL agents learn to:
 
 The trained PPO agent generates **$25,351 average revenue** compared to **$763** for random decisions, while maintaining customer satisfaction and never failing.
 
-## 🤔 Why This Matters
+## Why This Matters
 
 **The AI industry needs realistic training environments.** Most RL research uses:
 - Simple games (CartPole, Atari)
@@ -43,7 +43,7 @@ The trained PPO agent generates **$25,351 average revenue** compared to **$763**
 3. Multi-objective optimization (revenue + reputation + satisfaction)
 4. Practical AI application demonstrating business value
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────────────────────────────┐
@@ -166,7 +166,7 @@ The environment provides a **Dict observation space** with these features:
 
 **Note:** State uses historical review distribution from database for realistic customer behavior.
 
-## 🎮 Action Space
+## Action Space
 
 The environment uses a **Dict action space** with discrete choices:
 
@@ -326,8 +326,8 @@ Contributions welcome! Areas of interest:
 ## Author
 
 **Omar Alchab**  
-📧 Email: alchabomar@gmail.com  
-🐙 GitHub: [@alchabom](https://github.com/alchabom)  
+Email: alchabomar@gmail.com  
+GitHub: [@alchabom](https://github.com/alchabom)  
 
 
 
