@@ -1,0 +1,17 @@
+{
+    "python.analysis.extraPaths": [
+        "./business_",
+        "./business_",
+        "./business_",
+        "./business_",
+        "./business_",
+        "./gym",
+        "./business_gym",
+        "./business_",
+        "./gym/business_",
+        "./business_gym/business_",
+        "./gym/business_",
+        "./gym/business_",
+        "./business_gym/business_"
+    ]
+}
