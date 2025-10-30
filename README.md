@@ -11,24 +11,24 @@ An **OpenAI Gym-compatible environment** where RL agents learn to:
 - Manage business reputation over time
 - Maximize long-term revenue and ratings
 
-## 🌟 Why This Matters
+## Why 
 
 **The AI industry needs realistic training environments.** Most RL research uses:
 - Simple game environments (CartPole, Atari)
 - Simulated robotics (MuJoCo)
 - Abstract tasks
 
-**Real-world business simulation is rare and valuable** because:
+**Real-world business simulation** 
 1. It connects to actual economic outcomes
 2. It has real data from a MySQL database
 3. It tests multi-objective optimization (revenue + reputation)
 4. It demonstrates practical AI applications
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────────────────────────────┐
-│   RL Agent (Your Algorithm)         │
+│   RL Agent         │
 │   - PPO, DQN, A3C, etc.             │
 └──────────────┬──────────────────────┘
                │ actions
@@ -57,7 +57,7 @@ An **OpenAI Gym-compatible environment** where RL agents learn to:
 └─────────────────────────────────────┘
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Installation
 
@@ -118,7 +118,7 @@ model.learn(total_timesteps=50000)
 model.save("business_manager_agent")
 ```
 
-## 📊 State Space
+## State Space
 
 | Feature | Type | Range | Description |
 |---------|------|-------|-------------|
@@ -130,7 +130,7 @@ model.save("business_manager_agent")
 | `pending_reviews` | int | [0, 50] | Reviews needing response |
 | `recent_reviews` | string | text | Last 5 reviews |
 
-## 🎮 Action Space
+## Action Space
 
 | Action | Type | Options | Description |
 |--------|------|---------|-------------|
@@ -139,7 +139,7 @@ model.save("business_manager_agent")
 | `quality_investment` | Discrete(3) | none/moderate/high | Training & equipment |
 | `run_promotion` | Discrete(2) | no/yes | Marketing campaign |
 
-## 🎁 Reward Structure
+## Reward Structure
 
 The reward function balances multiple objectives:
 
@@ -154,9 +154,8 @@ reward = (
 )
 ```
 
-**Key insight:** Agent must balance short-term revenue vs. long-term reputation.
 
-## 📈 Baselines
+## Baselines
 
 | Agent | Avg Reward | Final Rating | Final Revenue |
 |-------|------------|--------------|---------------|
@@ -165,7 +164,7 @@ reward = (
 | Quality-first | +15.2 | 4.2/5.0 | $18,900 |
 | PPO (trained) | **+23.8** | **4.5/5.0** | **$22,300** |
 
-## 🔬 Research Applications
+## Applications
 
 This gym enables research on:
 
@@ -175,47 +174,8 @@ This gym enables research on:
 4. **Sim-to-real transfer** - Train in simulation, deploy to real business
 5. **Safe RL** - Can't test aggressive strategies on real business
 
-## 🎓 For Interviews & Internships
 
-**This demonstrates:**
-- ✅ Understanding of RL concepts (states, actions, rewards)
-- ✅ Practical software engineering (Gym API, MySQL, clean code)
-- ✅ Real-world problem modeling
-- ✅ Full-stack skills (Python + PHP + Database)
-- ✅ Research mindset (baselines, metrics, documentation)
-
-**Talking points:**
-> "I built a realistic RL gym environment for business management. Unlike toy problems, this connects to a real database and actual website. Agents learn to balance revenue and reputation—a genuine multi-objective optimization problem. I implemented the OpenAI Gym interface so researchers can use standard RL algorithms like PPO or DQN."
-
-## 📦 Project Structure
-
-```
-binglefixit-rl-gym/
-├── gym/
-│   ├── __init__.py
-│   ├── business_gym.py       # Main gym environment
-│   └── rewards.py            # Reward functions
-├── agents/
-│   ├── random_agent.py       # Baseline
-│   ├── ppo_agent.py         # PPO implementation
-│   └── dqn_agent.py         # DQN implementation
-├── database/
-│   ├── schema.sql           # Database setup
-│   └── seed_data.sql        # Initial reviews
-├── website/
-│   ├── index.php            # Storefront
-│   └── styles.css
-├── experiments/
-│   ├── train_ppo.py         # Training scripts
-│   └── evaluate.py          # Evaluation
-├── tests/
-│   └── test_gym.py          # Unit tests
-├── README.md
-├── requirements.txt
-└── setup.py
-```
-
-## 🔮 Future Extensions
+## Future
 
 - [ ] Add multi-agent competition (multiple businesses)
 - [ ] Seasonal demand variations
@@ -224,20 +184,7 @@ binglefixit-rl-gym/
 - [ ] Social media reputation system
 - [ ] Real-time deployment (agent manages live site)
 
-## 📝 Citation
-
-If you use this environment in research:
-
-```bibtex
-@misc{binglefixit_gym2025,
-  author = {Omar Alchab},
-  title = {BingleFixIt: A Business Management RL Gym},
-  year = {2025},
-  url = {https://github.com/yourusername/binglefixit-rl-gym}
-}
-```
-
-## 🤝 Contributing
+## Contributing
 
 Contributions welcome! Areas of interest:
 - Additional baseline algorithms
@@ -245,15 +192,7 @@ Contributions welcome! Areas of interest:
 - Integration with real review APIs (Yelp, Google)
 - More realistic customer behavior models
 
-## 📄 License
-
-MIT License - See LICENSE file
-
-## 👤 Contact
-
-Omar Alchab - [your email]  
-GitHub: [@yourusername](https://github.com/yourusername)
+Omar Alchab - alchabomar@gmail.com
+GitHub: [@alchabom](https://github.com/alchabom)
 
 ---
-
-**This gym demonstrates that you understand RL beyond textbook examples. You've built a real environment that connects research to practice.**
