@@ -11,10 +11,7 @@ Key improvements:
 import sys
 import os
 
-# Fix for gym version compatibility
-import gym
-if not hasattr(gym, '__version__'):
-    gym.__version__ = '0.26.0'
+
     
 from business_gym.business_env import BingleFixItBusinessEnv
 from stable_baselines3 import PPO
