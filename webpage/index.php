@@ -94,11 +94,13 @@
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
     
-    $host = "localhost";
-    $port = 3307;
-    $db_name = "mobile_repair";
-    $username = "root";
-    $password = "frince101";
+    $env = parse_ini_file('.env');
+
+    $host = $env['DB_HOST'];
+    $port = $env['DB_PORT'];
+    $db_name = $env['DB_NAME'];
+    $username = $env['DB_USER'];
+    $password = $env['DB_PASSWORD'];
 
     // Create connection with explicit port
     $conn = new mysqli($host, $username, $password, $db_name, $port);
