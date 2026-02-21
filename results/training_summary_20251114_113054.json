@@ -1,0 +1,9 @@
+{
+  "total_timesteps": 100000,
+  "n_envs": 4,
+  "learning_rate": 0.0003,
+  "final_episodes": 2700,
+  "mean_episode_reward": 388.1238316,
+  "mean_episode_length": 50.0,
+  "timestamp": "20251114_113054"
+}
